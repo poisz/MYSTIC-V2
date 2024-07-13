@@ -1,0 +1,295 @@
+-- IPs are grabbed to prevent leaking.
+-- All belongs to @poisz_
+local allowedPlayerIDs = {
+    [3040857301] = true,
+    [201066309] = true,
+    [6120119101] = true,
+    [6061300115] = true,
+    [6061349666] = true,
+    [3595271904] = true,
+    [6215572644] = true,
+}
+
+local function isUserAllowed(playerID)
+    return allowedPlayerIDs[playerID] ~= nil
+end
+
+local toggleKey = Enum.KeyCode.V
+local guiToggleKey = Enum.KeyCode.RightShift
+local isEnabled = false
+local predictionFactor = 0.15
+
+local playerService = game:GetService("Players")
+local inputService = game:GetService("UserInputService")
+local renderService = game:GetService("RunService")
+local starterGui = game:GetService("StarterGui")
+local localPlayer = playerService.LocalPlayer
+local mouse = localPlayer:GetMouse()
+local camera = workspace.CurrentCamera
+local highlight = Instance.new("Highlight")
+highlight.FillColor = Color3.fromRGB(255, 0, 0)
+highlight.FillTransparency = 0.5
+highlight.OutlineTransparency = 1
+
+local currentTarget = nil
+local guiEnabled = false
+
+local screenGui = Instance.new("ScreenGui")
+local frame = Instance.new("Frame")
+local redText = Instance.new("TextBox")
+local greenText = Instance.new("TextBox")
+local blueText = Instance.new("TextBox")
+local setsText = Instance.new("TextLabel")
+
+screenGui.Name = "ColorChanger"
+screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
+screenGui.Enabled = false
+
+frame.Name = "Frame"
+frame.Parent = screenGui
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.Position = UDim2.new(0.5, -150, 0.5, -50)
+frame.Size = UDim2.new(0, 300, 0, 160)
+
+redText.Name = "RedText"
+redText.Parent = frame
+redText.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+redText.Size = UDim2.new(0, 100, 0, 40)
+redText.Position = UDim2.new(0, 0, 0, 0)
+redText.Font = Enum.Font.SourceSans
+redText.Text = "255"
+redText.TextColor3 = Color3.fromRGB(255, 255, 255)
+redText.TextSize = 24
+redText.ClearTextOnFocus = false
+
+greenText.Name = "GreenText"
+greenText.Parent = frame
+greenText.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+greenText.Position = UDim2.new(0, 0, 0, 50)
+greenText.Size = UDim2.new(0, 100, 0, 40)
+greenText.Font = Enum.Font.SourceSans
+greenText.Text = "0"
+greenText.TextColor3 = Color3.fromRGB(255, 255, 255)
+greenText.TextSize = 24
+greenText.ClearTextOnFocus = false
+
+blueText.Name = "BlueText"
+blueText.Parent = frame
+blueText.BackgroundColor3 = Color3.fromRGB(0, 0, 255)
+blueText.Position = UDim2.new(0, 0, 0, 100)
+blueText.Size = UDim2.new(0, 100, 0, 40)
+blueText.Font = Enum.Font.SourceSans
+blueText.Text = "0"
+blueText.TextColor3 = Color3.fromRGB(255, 255, 255)
+blueText.TextSize = 24
+blueText.ClearTextOnFocus = false
+
+setsText.Name = "SetsText"
+setsText.Parent = frame
+setsText.BackgroundTransparency = 1
+setsText.Position = UDim2.new(0, 110, 0, 0)
+setsText.Size = UDim2.new(0, 190, 0, 160)
+setsText.Font = Enum.Font.SourceSans
+setsText.Text = [[Sets:
+Blue: 0, 0, 255
+Green: 0, 255, 0
+Red: 255, 0, 0
+Pink: 255, 50, 203
+Black: 0, 0, 0
+White: 255, 255, 255
+Light Blue: 0, 150, 200
+Yellow: 150, 150, 0
+Purple: 150, 0, 150]]
+setsText.TextColor3 = Color3.fromRGB(255, 255, 255)
+setsText.TextSize = 20
+setsText.TextWrapped = true
+
+local function findClosestPlayer()
+    local nearestPlayer = nil
+    local shortestDistance = math.huge
+
+    for _, player in ipairs(playerService:GetPlayers()) do
+        if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local rootPartPosition = player.Character.HumanoidRootPart.Position
+            local screenPosition, onScreen = camera:WorldToScreenPoint(rootPartPosition)
+            local distance = (Vector2.new(screenPosition.X, screenPosition.Y) - Vector2.new(mouse.X, mouse.Y)).Magnitude
+
+            if distance < shortestDistance and onScreen then
+                shortestDistance = distance
+                nearestPlayer = player
+            end
+        end
+    end
+
+    return nearestPlayer
+end
+
+inputService.InputBegan:Connect(function(input)
+    if input.KeyCode == toggleKey and isEnabled then
+        if currentTarget then
+            highlight.Adornee = nil
+            highlight.Parent = nil
+            currentTarget = nil
+        else
+            currentTarget = findClosestPlayer()
+            if currentTarget then
+                highlight.Adornee = currentTarget.Character
+                highlight.Parent = currentTarget.Character
+            end
+        end
+    end
+    if input.KeyCode == guiToggleKey then
+        guiEnabled = not guiEnabled
+        screenGui.Enabled = guiEnabled
+    end
+end)
+
+renderService.RenderStepped:Connect(function()
+    if currentTarget and currentTarget.Character then
+        local rootPart = currentTarget.Character.HumanoidRootPart
+        local targetPosition = rootPart.Position
+        local targetVelocity = rootPart.Velocity
+        local prediction = targetPosition + (targetVelocity * predictionFactor)
+        camera.CFrame = CFrame.new(camera.CFrame.Position, prediction)
+    end
+end)
+
+local function updateHighlightColor()
+    local r = tonumber(redText.Text) or 255
+    local g = tonumber(greenText.Text) or 0
+    local b = tonumber(blueText.Text) or 0
+    highlight.FillColor = Color3.fromRGB(r, g, b)
+end
+
+redText.FocusLost:Connect(updateHighlightColor)
+greenText.FocusLost:Connect(updateHighlightColor)
+blueText.FocusLost:Connect(updateHighlightColor)
+
+starterGui:SetCore("SendNotification", {
+    Title = "MYSTIC V2";
+    Text = "Loading";
+    Duration = 2;
+})
+wait(2)
+
+starterGui:SetCore("SendNotification", {
+    Title = "MYSTIC V2";
+    Text = "Checking Whitelist";
+    Duration = 2;
+})
+wait(2)
+
+if isUserAllowed(localPlayer.UserId) then
+    starterGui:SetCore("SendNotification", {
+        Title = "MYSTIC V2";
+        Text = "Whitelisted";
+        Duration = 2;
+    })
+    wait(2)
+    starterGui:SetCore("SendNotification", {
+        Title = "MYSTIC V2";
+        Text = "Finding Prediction";
+        Duration = 2;
+    })
+    wait(2)
+    
+    -- Get average ping
+    local totalPing = 0
+    local pingCount = 0
+
+    local pingCheckFunction = function()
+        while true do
+            totalPing = totalPing + game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue()
+            pingCount = pingCount + 1
+            wait(1)
+        end
+    end
+    
+    spawn(pingCheckFunction)
+    
+    wait(5)  -- Collect ping data for 5 seconds, might make longer too get a more accurate read
+    
+    local averagePing = totalPing / pingCount
+    
+    -- Set prediction based on average ping
+    if averagePing < 40 then
+        predictionFactor = 0.13232
+    elseif averagePing < 50 then
+        predictionFactor = 0.1245
+    elseif averagePing < 60 then
+        predictionFactor = 0.1248976
+    elseif averagePing < 70 then
+        predictionFactor = 0.129762
+    elseif averagePing < 80 then
+        predictionFactor = 0.134379
+    elseif averagePing < 90 then
+        predictionFactor = 0.136
+    elseif averagePing < 105 then
+        predictionFactor = 0.138
+    elseif averagePing < 110 then
+        predictionFactor = 0.146
+    elseif averagePing < 125 then
+        predictionFactor = 0.149
+    elseif averagePing < 130 then
+        predictionFactor = 0.151
+    elseif averagePing < 140 then
+        predictionFactor = 0.153
+    elseif averagePing < 150 then
+        predictionFactor = 0.156
+    elseif averagePing < 160 then
+        predictionFactor = 0.16
+    elseif averagePing < 170 then
+        predictionFactor = 0.164
+    elseif averagePing < 180 then
+        predictionFactor = 0.168
+    elseif averagePing < 190 then
+        predictionFactor = 0.172
+    elseif averagePing < 200 then
+        predictionFactor = 0.176
+    elseif averagePing < 210 then
+        predictionFactor = 0.18
+    elseif averagePing < 220 then
+        predictionFactor = 0.184
+    elseif averagePing < 230 then
+        predictionFactor = 0.188
+    elseif averagePing < 240 then
+        predictionFactor = 0.192
+    elseif averagePing < 250 then
+        predictionFactor = 0.196
+    elseif averagePing < 260 then
+        predictionFactor = 0.2
+    elseif averagePing < 270 then
+        predictionFactor = 0.204
+    elseif averagePing < 280 then
+        predictionFactor = 0.208
+    elseif averagePing < 290 then
+        predictionFactor = 0.212
+    else
+        predictionFactor = 0.216
+    end
+    
+    starterGui:SetCore("SendNotification", {
+        Title = "MYSTIC V2";
+        Text = "Prediction based off average ping.";
+        Duration = 3;
+    })
+    
+    starterGui:SetCore("SendNotification", {
+        Title = "MYSTIC V2";
+        Text = "Prediction Found: " .. tostring(predictionFactor);
+        Duration = 4;
+    })
+    
+    isEnabled = true
+    starterGui:SetCore("SendNotification", {
+        Title = "MYSTIC V2";
+        Text = "RIGHT SHIFT TO TOGGLE HIGHLIGHT COLOURS, V TO TOGGLE LOCK";
+        Duration = 4;
+    })
+else
+    starterGui:SetCore("SendNotification", {
+        Title = "MYSTIC V2";
+        Text = "Not whitelisted, DM @poisz_ to fix.";
+        Duration = 2;
+    })
+end

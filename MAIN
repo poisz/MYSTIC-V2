@@ -1,18 +1,6 @@
--- IPs are grabbed to prevent leaking.
--- All belongs to @poisz_
-local allowedPlayerIDs = {
-    [3040857301] = true,
-    [201066309] = true,
-    [6120119101] = true,
-    [6061300115] = true,
-    [6061349666] = true,
-    [3595271904] = true,
-    [6215572644] = true,
-}
-
-local function isUserAllowed(playerID)
-    return allowedPlayerIDs[playerID] ~= nil
-end
+--[[ All belongs to poisz_ all coded and tested by poisz_
+If you get this script you are asked not too share it as it is still very good and usable by anyone
+Please and thanks --]]
 
 local toggleKey = Enum.KeyCode.V
 local guiToggleKey = Enum.KeyCode.RightShift
@@ -103,6 +91,20 @@ Purple: 150, 0, 150]]
 setsText.TextColor3 = Color3.fromRGB(255, 255, 255)
 setsText.TextSize = 20
 setsText.TextWrapped = true
+
+local allowedPlayerIDs = {
+    [3040857301] = true,
+    [201066309] = true,
+    [6120119101] = true,
+    [6061300115] = true,
+    [6061349666] = true,
+    [3595271904] = true,
+    [6215572644] = true,
+}
+
+local function isUserAllowed(playerID)
+    return allowedPlayerIDs[playerID] ~= nil
+end
 
 local function findClosestPlayer()
     local nearestPlayer = nil
@@ -211,7 +213,7 @@ if isUserAllowed(localPlayer.UserId) then
     
     local averagePing = totalPing / pingCount
     
-    -- Set prediction based on average ping
+    -- Prediction sets, not really tryna hide it use em all u want 
     if averagePing < 40 then
         predictionFactor = 0.13232
     elseif averagePing < 50 then

@@ -14,3 +14,4 @@ WORKING ON / UPCOMING:
 Highlight GUI rework
 Highlight GUI dissapearing on death fixing
 Adding highlight preview too Highlight GUI
+Thinking of mod finder

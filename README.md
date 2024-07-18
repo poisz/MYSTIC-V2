@@ -2,13 +2,13 @@
 All made by @poisz_
 Dont leak thx
 
-MYSTIC V2 | VERSION 1.2
+MYSTIC V2 | VERSION 1.23
 
 NEW:
 Added auto find prediction based off average ping
 
 FIXES: 
-Not much
+Colour GUI dissapearing upon death
 
 WORKING ON / UPCOMING:
 Highlight GUI rework

@@ -1,5 +1,5 @@
 # MYSTIC-V2
-All made by @poisz_
+All made by @x841
 Dont leak thx
 
 MYSTIC V2 | VERSION 1.31

@@ -1,23 +1,6 @@
 # MYSTIC-V2
 All made by @x841
-Dont leak thx
 
-MYSTIC V2 | VERSION 1.31
+I have pretty much abandoned this project, to sum it up it was a roblox exploiting Cam-lock / Aimbot. If you are still interested join discord.gg/TAacqPFgkF to purchase!
 
-NEW
-Colour UI fully redone! Adding more functions soon 👀
-Brand new predictions scaling from 0-290 ping. (WENT TOO 500 SEEMED EXESSIVE)
-Re-Auto find prediction every 3 seconds! Prediction is now refound in 3 second intervals!
-
-
-BUG FIXES
-Fixed Colour UI showing up before whitelist confirmed.
-Small fixes, cant remember.
-
-REMOVED
-Removed \ too refind prediction, no point since we now have auto refind!
-
-WORKING ON
-Working on a colour preview in Colour UI
-Adding change prediction if locked on player is going quick, such as if someone is flying prediction will change to better your chances, not 100% confirmed.
-Custom prediction button, so people can make their own prediction.
+<3
